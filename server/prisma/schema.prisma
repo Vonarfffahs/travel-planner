@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+model HistoricPlace {
+  id Int @id @default(autoincrement())
+
+  name          String
+  coordX        Float // x_j
+  coordY        Float // y_j
+  historicValue Float // w_j 
+  daysToVisit   Int   // d_j
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
