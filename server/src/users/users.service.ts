@@ -32,6 +32,7 @@ export class UsersService {
       take: query.take,
       skip: query.skip,
       where: { nickname },
+      orderBy: { nickname: 'asc' },
     });
 
     return this.mapper.mapMany(count, data);

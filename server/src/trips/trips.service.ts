@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  NotImplementedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; // Перевір шлях імпорту
 import { CreateTripDTO, ReadAllTripsDTO, ReadAllTripsQueryDTO } from './dto';
@@ -30,6 +29,7 @@ export class TripsService {
       take: query.take,
       skip: query.skip,
       where: { name },
+      orderBy: { name: 'asc' },
       include: {
         algorithm: true,
         parameters: true,
@@ -148,9 +148,7 @@ export class TripsService {
     if (selectedAlgorithm.name === 'Greedy') {
       solver = new GreedySolver(allPlaces, allCosts);
     } else if (selectedAlgorithm.name === 'Ant Colony Optimization') {
-      throw new NotImplementedException(
-        'Ant Colony Optimization algorithm is not implemented',
-      );
+      solver = new AntColonySolver(allPlaces, allCosts, parameters);
     } else {
       throw new BadRequestException(
         `Unknown algorithm: ${selectedAlgorithm.name}`,

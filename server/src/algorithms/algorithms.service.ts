@@ -34,6 +34,7 @@ export class AlgorithmsService {
       take: query.take,
       skip: query.skip,
       where: { name },
+      orderBy: { name: 'asc' },
     });
 
     return this.mapper.mapMany(count, data);
