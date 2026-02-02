@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -53,7 +55,13 @@ export class HistoricPlacesController {
   }
 
   @Delete(':historicPlaceId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param() { historicPlaceId }: GetHistoricPlaceParams): Promise<void> {
     return this.historicPlacesService.delete(historicPlaceId);
+  }
+
+  @Post('generate-matrix')
+  generateMatrix() {
+    return this.historicPlacesService.generateCostMatrix();
   }
 }

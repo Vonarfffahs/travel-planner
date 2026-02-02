@@ -1,6 +1,7 @@
-import { IsInt, IsNumber, Length, Max, Min } from 'class-validator';
+import { IsInt, IsNumber, IsString, Length, Max, Min } from 'class-validator';
 
 export class CreateHistoricPlaceDTO {
+  @IsString()
   @Length(1, 100)
   name: string;
 

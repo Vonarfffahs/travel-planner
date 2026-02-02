@@ -4,19 +4,132 @@ datasource db {
 
 generator client {
   provider     = "prisma-client"
-  output       = "../src/generated/prisma"
+  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
 model HistoricPlace {
-  id Int @id @default(autoincrement())
+  id String @id @db.Uuid @default(uuid(4))
 
-  name          String
-  coordX        Float // x_j
-  coordY        Float // y_j
-  historicValue Float // w_j 
-  daysToVisit   Int   // d_j
+  name          String @unique                @db.VarChar(100)
+  coordX        Float  @map("coord_x")        @db.DoublePrecision // x_j
+  coordY        Float  @map("coord_y")        @db.DoublePrecision // y_j
+  historicValue Float  @map("historic_value") @db.DoublePrecision // w_j 
+  daysToVisit   Int    @map("days_to_visit")  @db.Integer         // d_j
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tripSteps TripStep[] // sequence J
+  costsFrom TravelCost[] @relation("CostsFrom")
+  costsTo   TravelCost[] @relation("CostsTo")
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@map("historic_place")
+}
+
+model Trip {
+  id String @id @db.Uuid @default(uuid(4))
+
+  name            String                         @db.VarChar(255) @default("New trip")
+  maxCostLimit    Float @map("max_cost_limit")   @db.DoublePrecision // C
+  maxTimeLimit    Int   @map("max_time_limit")   @db.Integer         // D
+  totalValue      Float @map("total_value")      @db.DoublePrecision // W
+  totalCost       Float @map("total_cost")       @db.DoublePrecision // trip total cost
+  totalTime       Float @map("total_time")       @db.DoublePrecision // trip total time
+  calculationTime Float @map("calculation_time") @db.DoublePrecision // algorithms calculation time
+
+  algorithmId  String          @map("algorithm_id")  @db.Uuid
+  parametersId String? @unique @map("parameters_id") @db.Uuid
+  userId       String          @map("user_id")       @db.Uuid
+
+  tripSteps  TripStep[]
+  algorithm  Algorithm            @relation(fields: [algorithmId], references: [id], onDelete: Restrict)
+  parameters AlgorithmParameters? @relation(fields: [parametersId], references: [id], onDelete: Restrict)
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@map("trip")
+}
+
+// Trip's historic places list item (J_i)
+model TripStep {
+  id String @id @db.Uuid @default(uuid(4))
+
+  tripId          String @map("trip_id")           @db.Uuid
+  historicPlaceId String @map("historic_place_id") @db.Uuid
+  visitOrder      Int    @map("visit_order")       @db.Integer
+
+  trip          Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  historicPlace HistoricPlace @relation(fields: [historicPlaceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@unique([tripId, visitOrder])
+  @@map("trip_step")
+}
+
+// Cost matrix k_ij
+model TravelCost {
+  id String @id @db.Uuid @default(uuid(4))
+
+  sourceId      String @map("source_id")      @db.Uuid
+  destinationId String @map("destination_id") @db.Uuid
+  travelCost    Float  @map("travel_cost")    @db.DoublePrecision // k_ij value
+
+  source      HistoricPlace @relation("CostsFrom", fields: [sourceId], references: [id], onDelete: Cascade)
+  destination HistoricPlace @relation("CostsTo", fields: [destinationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@unique([sourceId, destinationId])
+  @@map("travel_cost")
+}
+
+model Algorithm {
+  id String @id @db.Uuid @default(uuid(4))
+
+  name        String @unique @db.VarChar(50) // Greedy or ACO
+  description String         @db.VarChar(1000)
+
+  trips Trip[]
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@map("algorithm")
+}
+
+model AlgorithmParameters {
+  id String @id @db.Uuid @default(uuid(4))
+
+  alpha           Float? @db.DoublePrecision
+  beta            Float? @db.DoublePrecision
+  evaporationRate Float? @db.DoublePrecision @map("evaporation_rate")
+  iterations      Int?   @db.Integer
+  antCount        Int?   @db.Integer
+
+  trip Trip?
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@map("algorithm_parameters")
+}
+
+model User {
+  id String @id @db.Uuid @default(uuid(4))
+
+  nickname  String @unique
+  email     String @unique
+
+  trips Trip[]
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@map("user")
 }
