@@ -82,9 +82,9 @@ export class HistoricPlacesService {
     });
   }
 
-  // === НОВИЙ МЕТОД: Генерація матриці вартостей ===
+  // === ОНОВЛЕНИЙ МЕТОД: Генерація матриці реальних відстаней через OSRM ===
   async generateCostMatrix(): Promise<string> {
-    // 1. Отримуємо всі місця
+    // 1. Отримуємо всі місця з БД
     const places = await this.prismaService.historicPlace.findMany();
 
     if (places.length < 2) {
@@ -93,45 +93,74 @@ export class HistoricPlacesService {
       );
     }
 
-    let count = 0;
-
-    // 2. Подвійний цикл: кожне місце з кожним
-    for (const source of places) {
-      for (const destination of places) {
-        // Пропускаємо петлі (сам в себе)
-        if (source.id === destination.id) continue;
-
-        // 3. Розрахунок відстані (це і буде наша travelCost)
-        // Можна додати множник, наприклад * 10, якщо це ціна квитка
-        const distance = Math.sqrt(
-          Math.pow(destination.coordX - source.coordX, 2) +
-            Math.pow(destination.coordY - source.coordY, 2),
-        );
-
-        // Округляємо до 2 знаків
-        const cost = parseFloat(distance.toFixed(2));
-
-        // 4. Зберігаємо або оновлюємо (upsert)
-        await this.prismaService.travelCost.upsert({
-          where: {
-            sourceId_destinationId: {
-              sourceId: source.id,
-              destinationId: destination.id,
-            },
-          },
-          update: { travelCost: cost },
-          create: {
-            sourceId: source.id,
-            destinationId: destination.id,
-            travelCost: cost,
-          },
-        });
-
-        count++;
-      }
+    // OSRM Public API має ліміт близько 100 координат в одному запиті.
+    // Для дипломного проєкту цього зазвичай достатньо.
+    if (places.length > 100) {
+      throw new ConflictException(
+        'Too many places for free OSRM API. Max 100.',
+      );
     }
 
-    return `Successfully generated ${count} travel costs connections.`;
+    // 2. Формуємо рядок координат для OSRM
+    // Формат OSRM: longitude,latitude (довгота, широта).
+    // Припускаємо, що coordX - це довгота, coordY - широта.
+    const coordinatesString = places
+      .map((place) => `${place.coordX},${place.coordY}`)
+      .join(';');
+
+    // 3. Робимо запит до OSRM Table API
+    // driving - на авто. distances - просимо повернути матрицю відстаней в метрах
+    const osrmUrl = `http://router.project-osrm.org/table/v1/driving/${coordinatesString}?annotations=distance`;
+
+    try {
+      const response = await fetch(osrmUrl);
+      const data = await response.json();
+
+      if (data.code !== 'Ok' || !data.distances) {
+        throw new Error(`OSRM API error: ${data.code}`);
+      }
+
+      // data.distances - це двовимірний масив (матриця)
+      const distancesMatrix = data.distances;
+      let count = 0;
+
+      // 4. Проходимося по матриці і зберігаємо в БД
+      for (let i = 0; i < places.length; i++) {
+        for (let j = 0; j < places.length; j++) {
+          if (i === j) continue; // Пропускаємо шлях сам до себе
+
+          const source = places[i];
+          const destination = places[j];
+
+          // Отримуємо відстань в метрах і переводимо в кілометри
+          const distanceMeters = distancesMatrix[i][j];
+          const distanceKm = parseFloat((distanceMeters / 1000).toFixed(2));
+
+          // 5. Зберігаємо в БД
+          await this.prismaService.travelCost.upsert({
+            where: {
+              sourceId_destinationId: {
+                sourceId: source.id,
+                destinationId: destination.id,
+              },
+            },
+            update: { travelCost: distanceKm },
+            create: {
+              sourceId: source.id,
+              destinationId: destination.id,
+              travelCost: distanceKm,
+            },
+          });
+
+          count++;
+        }
+      }
+
+      return `Successfully generated ${count} real-world travel costs using OSRM.`;
+    } catch (error) {
+      console.error('Error fetching distances from OSRM:', error);
+      throw new ConflictException('Failed to generate real-world cost matrix.');
+    }
   }
 
   private async checkName(

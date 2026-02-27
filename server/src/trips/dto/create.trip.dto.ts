@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsNumber,
   IsOptional,
   IsString,
@@ -8,7 +10,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CreateAlgorithmParametersDTO } from './create.algorithm-parameters.dto';
+import { CreateAlgorithmParametersDTO } from '../../algorithms/dto/create.algorithm-parameters.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTripDTO {
@@ -39,7 +41,7 @@ export class CreateTripDTO {
 
   @IsUUID(4)
   @ApiProperty({
-    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
+    example: '2f7ff53e-e676-49d7-bb5d-48faf7ea4500',
     description: 'UUID of the selected algorithm',
   })
   algorithmId: string;
@@ -59,4 +61,42 @@ export class CreateTripDTO {
     description: 'UUID of the user creating the trip',
   })
   userId: string;
+
+  @IsNumber()
+  @ApiProperty({
+    example: 85.5,
+    description: 'Total historic value of the calculated trip',
+  })
+  totalValue: number;
+
+  @IsNumber()
+  @ApiProperty({
+    example: 1200,
+    description: 'Total cost of the calculated trip',
+  })
+  totalCost: number;
+
+  @IsNumber()
+  @ApiProperty({
+    example: 6,
+    description: 'Total time of the calculated trip',
+  })
+  totalTime: number;
+
+  @IsNumber()
+  @ApiProperty({
+    example: 15.4,
+    description: 'Time taken by the algorithm to calculate (ms)',
+  })
+  calculationTime: number;
+
+  @IsArray()
+  @IsUUID(4, { each: true })
+  @ArrayMinSize(1)
+  @ApiProperty({
+    example: ['uuid-1', 'uuid-2'],
+    description:
+      'Array of historic place IDs in the exact order they should be visited',
+  })
+  path: string[];
 }

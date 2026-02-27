@@ -1,4 +1,4 @@
-export * from './create.algorithm-parameters.dto';
+export * from '../../algorithms/dto/create.algorithm-parameters.dto';
 export * from './create.trip.dto';
 export * from './get.trip.dto';
 export * from './read-all.trips.dto';

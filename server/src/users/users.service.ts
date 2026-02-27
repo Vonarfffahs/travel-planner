@@ -20,18 +20,23 @@ export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getAll(query: ReadAllUsersQueryDTO): Promise<ReadAllUsersDTO> {
-    const nickname: Prisma.StringFilter | undefined = query.search
-      ? { contains: query.search, mode: 'insensitive' }
-      : undefined;
+    const where: Prisma.UserWhereInput = query.search
+      ? {
+          OR: [
+            { nickname: { contains: query.search, mode: 'insensitive' } },
+            { email: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
 
     const count = await this.prismaService.user.count({
-      where: { nickname },
+      where,
     });
 
     const data = await this.prismaService.user.findMany({
       take: query.take,
       skip: query.skip,
-      where: { nickname },
+      where,
       orderBy: { nickname: 'asc' },
     });
 

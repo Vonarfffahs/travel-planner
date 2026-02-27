@@ -11,4 +11,13 @@ export class ReadAllTripsQueryDTO extends ReadAllQueryDTO {
     description: 'Search term to filter trips by name',
   })
   search?: string;
+
+  @IsOptional()
+  @Length(1, 50)
+  @ApiPropertyOptional({
+    type: String,
+    example: 'cc98cacc-e166-4cfd-8bd9-f51797808c79',
+    description: 'Search trips by user`s id',
+  })
+  userId?: string;
 }

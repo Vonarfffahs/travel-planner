@@ -1,5 +1,5 @@
 import { ReadAlgorithmDTO } from 'src/algorithms/dto';
-import { ReadAlgorithmParametersDTO } from './read.algorithm-parameters.dto';
+import { ReadAlgorithmParametersDTO } from '../../algorithms/dto/read.algorithm-parameters.dto';
 import { ReadTripStepDTO } from './read.trip-step.dto';
 import { ApiProperty } from '@nestjs/swagger';
 

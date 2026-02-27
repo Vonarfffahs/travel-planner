@@ -1,14 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service'; // Перевір шлях імпорту
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateTripDTO, ReadAllTripsDTO, ReadAllTripsQueryDTO } from './dto';
 import { Prisma } from 'generated/prisma/client';
 import { ReadTripMapper } from './mappers/read.trips.mapper';
-import { SolverResult, TravelSolver } from 'src/algorithms/interfaces';
-import { AntColonySolver, GreedySolver } from 'src/algorithms/solvers';
 
 @Injectable()
 export class TripsService {
@@ -17,18 +11,21 @@ export class TripsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getAll(query: ReadAllTripsQueryDTO): Promise<ReadAllTripsDTO> {
-    const name: Prisma.StringFilter | undefined = query.search
-      ? { contains: query.search, mode: 'insensitive' }
-      : undefined;
+    const where: Prisma.TripWhereInput = {
+      name: query.search
+        ? { contains: query.search, mode: 'insensitive' }
+        : undefined,
+      userId: query.userId ? query.userId : undefined,
+    };
 
     const count = await this.prismaService.trip.count({
-      where: { name },
+      where,
     });
 
     const data = await this.prismaService.trip.findMany({
       take: query.take,
       skip: query.skip,
-      where: { name },
+      where,
       orderBy: { name: 'asc' },
       include: {
         algorithm: true,
@@ -64,36 +61,7 @@ export class TripsService {
   }
 
   async create(data: CreateTripDTO): Promise<string> {
-    const { parameters, ...tripData } = data;
-
-    const [allPlaces, allCosts, selectedAlgorithm] = await Promise.all([
-      this.prismaService.historicPlace.findMany(),
-      this.prismaService.travelCost.findMany(),
-      this.prismaService.algorithm.findUnique({
-        where: { id: tripData.algorithmId },
-      }),
-    ]);
-
-    if (!selectedAlgorithm) {
-      throw new NotFoundException('Algorithm not found.');
-    }
-
-    let solver: TravelSolver;
-
-    if (selectedAlgorithm.name === 'Greedy') {
-      solver = new GreedySolver(allPlaces, allCosts);
-    } else if (selectedAlgorithm.name === 'Ant Colony Optimization') {
-      solver = new AntColonySolver(allPlaces, allCosts, parameters);
-    } else {
-      throw new BadRequestException(
-        `Unknown algorithm: ${selectedAlgorithm.name}`,
-      );
-    }
-
-    const algorithmResult: SolverResult = solver.solve(
-      tripData.maxCostLimit,
-      tripData.maxTimeLimit,
-    );
+    const { parameters, path, ...tripData } = data;
 
     const trip = await this.prismaService.trip.create({
       data: {
@@ -101,10 +69,10 @@ export class TripsService {
         maxCostLimit: tripData.maxCostLimit,
         maxTimeLimit: tripData.maxTimeLimit,
 
-        totalValue: algorithmResult.totalValue,
-        totalCost: algorithmResult.totalCost,
-        totalTime: algorithmResult.totalTime,
-        calculationTime: algorithmResult.calculationTime,
+        totalValue: tripData.totalValue,
+        totalCost: tripData.totalCost,
+        totalTime: tripData.totalTime,
+        calculationTime: tripData.calculationTime,
 
         user: { connect: { id: tripData.userId } },
         algorithm: { connect: { id: tripData.algorithmId } },
@@ -113,8 +81,8 @@ export class TripsService {
       },
     });
 
-    if (algorithmResult.path.length > 0) {
-      await this.saveTripSteps(trip.id, algorithmResult.path);
+    if (path && path.length > 0) {
+      await this.saveTripSteps(trip.id, path);
     }
 
     return trip.id;
@@ -129,38 +97,9 @@ export class TripsService {
       throw new NotFoundException(`Trip with ID ${tripId} not found`);
     }
 
-    const { parameters, ...tripData } = data;
+    const { parameters, path, ...tripData } = data;
 
-    const [allPlaces, allCosts, selectedAlgorithm] = await Promise.all([
-      this.prismaService.historicPlace.findMany(),
-      this.prismaService.travelCost.findMany(),
-      this.prismaService.algorithm.findUnique({
-        where: { id: tripData.algorithmId },
-      }),
-    ]);
-
-    if (!selectedAlgorithm) {
-      throw new NotFoundException('Algorithm not found.');
-    }
-
-    let solver: TravelSolver;
-
-    if (selectedAlgorithm.name === 'Greedy') {
-      solver = new GreedySolver(allPlaces, allCosts);
-    } else if (selectedAlgorithm.name === 'Ant Colony Optimization') {
-      solver = new AntColonySolver(allPlaces, allCosts, parameters);
-    } else {
-      throw new BadRequestException(
-        `Unknown algorithm: ${selectedAlgorithm.name}`,
-      );
-    }
-
-    const algorithmResult: SolverResult = solver.solve(
-      tripData.maxCostLimit,
-      tripData.maxTimeLimit,
-    );
-
-    // 4. Виконуємо транзакцію: видаляємо старі кроки і оновлюємо саму подорож
+    // Виконуємо транзакцію: видаляємо старі кроки і оновлюємо саму подорож
     // Ми використовуємо $transaction, щоб гарантувати цілісність даних
     await this.prismaService.$transaction(async (prisma) => {
       await prisma.tripStep.deleteMany({
@@ -174,10 +113,10 @@ export class TripsService {
           maxCostLimit: tripData.maxCostLimit,
           maxTimeLimit: tripData.maxTimeLimit,
 
-          totalValue: algorithmResult.totalValue,
-          totalCost: algorithmResult.totalCost,
-          totalTime: algorithmResult.totalTime,
-          calculationTime: algorithmResult.calculationTime,
+          totalValue: tripData.totalValue,
+          totalCost: tripData.totalCost,
+          totalTime: tripData.totalTime,
+          calculationTime: tripData.calculationTime,
 
           user: { connect: { id: tripData.userId } },
           algorithm: { connect: { id: tripData.algorithmId } },
@@ -193,8 +132,8 @@ export class TripsService {
         },
       });
 
-      if (algorithmResult.path.length > 0) {
-        const stepsData = algorithmResult.path.map((placeId, index) => ({
+      if (path && path.length > 0) {
+        const stepsData = path.map((placeId, index) => ({
           tripId: tripId,
           historicPlaceId: placeId,
           visitOrder: index + 1,

@@ -19,6 +19,7 @@ import {
 } from './dto';
 import { GetAlgorithmParams } from './dto/get.algorithm.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { CalculateTripDto } from './dto/calculate.trip.dto';
 
 @Controller('algorithms')
 export class AlgorithmsController {
@@ -106,5 +107,12 @@ export class AlgorithmsController {
   @ApiResponse({ status: 404, description: 'Algorithm not found' })
   delete(@Param() { algorithmId }: GetAlgorithmParams): Promise<void> {
     return this.algorithmsService.delete(algorithmId);
+  }
+
+  @Post('calculate')
+  @ApiOperation({ summary: 'Calculate optimal route' })
+  @ApiResponse({ status: 200, description: 'Route calculated successfully' })
+  async calculateTrip(@Body() data: CalculateTripDto) {
+    return this.algorithmsService.calculate(data);
   }
 }

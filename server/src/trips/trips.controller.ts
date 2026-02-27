@@ -54,9 +54,9 @@ export class TripsController {
 
   @Post('create')
   @ApiOperation({
-    summary: 'Create a new trip and calculate the route',
+    summary: 'Save a calculated trip',
     description:
-      'Creates a trip, runs the selected algorithm (Greedy or ACO), and saves the result.',
+      'Saves a trip that has already been calculated by the algorithms endpoint.',
   })
   @ApiBody({ type: CreateTripDTO })
   @ApiResponse({
