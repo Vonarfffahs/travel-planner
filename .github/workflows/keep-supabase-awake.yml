@@ -1,0 +1,30 @@
+name: Keep Supabase Awake
+
+on:
+  schedule:
+    # Запускається щодня о 10:00 UTC (це 12:00 або 13:00 за Києвом)
+    - cron: '0 10 * * *'
+  # Дозволяє запустити цей скрипт вручну з інтерфейсу GitHub
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        # Увага: замініть 'users' у URL нижче на реальну назву вашої таблиці!
+        run: |
+          echo "Pinging Supabase to keep it awake..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$SUPABASE_URL/rest/v1/users?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "Successfully pinged Supabase! (HTTP 200)"
+          else
+            echo "Failed to ping Supabase. HTTP Status: $RESPONSE"
+            exit 1
+          fi
