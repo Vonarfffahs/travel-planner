@@ -1,0 +1,66 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 708px;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a2f16;
+}
+
+.iconLabel > * {
+  height: 100%;
+}
+
+.inputContainer {
+  display: flex;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: inherit;
+  width: 100%;
+  border-radius: 8px;
+  border: 0px;
+  padding: 15px 8px;
+  background-color: #e8f5bd;
+}
+
+.input {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  height: 100%;
+  width: 100%;
+  color: #1a2f16;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.inputContainer:focus-within {
+  outline: 2px solid #84b179;
+}
+
+.input.error {
+  outline: 2px solid #ef4444;
+  background-color: #fef2f2;
+}
+
+.errorText {
+  font-size: 14px;
+  color: #ef4444;
+  margin-top: 4px;
+}

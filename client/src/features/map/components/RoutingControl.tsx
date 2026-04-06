@@ -1,44 +1,45 @@
-import { useEffect } from 'react';
+import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-import { useMap } from 'react-leaflet';
+import { useSelector } from 'react-redux';
+import type { StoreState } from '../../../store';
+import { useEffect } from 'react';
 
-interface RoutingControlProps {
-  points: { lat: number; lng: number }[];
-}
-
-export const RoutingControl = ({ points }: RoutingControlProps) => {
+export const RoutingControl = () => {
   const map = useMap();
 
+  const trip = useSelector((state: StoreState) => state.trip.calculatedTrip);
+
+  const routeLineStyles = [{ color: '#2563eb', weight: 4, opacity: 0.8 }];
+
   useEffect(() => {
-    if (!map || points.length < 2) return;
+    if (!trip || trip.path.length < 2) return;
 
-    // Перетворюємо наші координати у формат Leaflet
-    const waypoints = points.map((p) => L.latLng(p.lat, p.lng));
+    // 1. Формуємо масив точок для плагіна
+    const waypoints = trip.path.map(
+      (place) => L.latLng(place.coordY, place.coordX), // [lat, lng]
+    );
 
-    // Створюємо контроллер маршруту
+    // 2. Створюємо контроль маршруту
     const routingControl = L.Routing.control({
       waypoints,
-      routeWhileDragging: false, // Вимикаємо перетягування маршруту для диплома
-      showAlternatives: false,
-      fitSelectedRoutes: true, // Карта сама відцентрується по маршруту
       lineOptions: {
-        styles: [{ color: '#3b82f6', weight: 5 }],
-        extendToWaypoints: true, // Вирішує помилку TS: гарантує, що лінія дотягнеться до маркера
-        missingRouteTolerance: 0, // Вирішує помилку TS: допуск на відсутність фрагментів дороги // Гарний синій колір
+        styles: routeLineStyles,
+        extendToWaypoints: true,
+        missingRouteTolerance: 0,
       },
-      // Вимикаємо додавання нових точок кліком по карті
+      show: false,
       addWaypoints: false,
-    }).addTo(map);
+      routeWhileDragging: false,
+      createMarker: () => null,
+    } as L.Routing.RoutingControlOptions & { createMarker: () => null }).addTo(
+      map,
+    ); // createMarker in type L.Routing.control() is not specified
 
-    // Очищення при розмонтуванні компонента
     return () => {
-      if (map) {
-        map.removeControl(routingControl);
-      }
+      map.removeControl(routingControl);
     };
-  }, [map, points]);
+  }, [map, trip]);
 
   return null;
 };

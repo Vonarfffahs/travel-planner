@@ -1,0 +1,119 @@
+/* Контейнер тримає меню в кутку сторінки */
+.wrapper {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.avatarBtn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #c7eabb;
+  border: 2px solid #84b179;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition:
+    box-shadow 0.2s,
+    transform 0.1s;
+}
+
+.avatarBtn:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatarBtn:active {
+  transform: scale(0.95);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1001;
+}
+
+.dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 320px;
+  background-color: #c7eabb;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1002;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 16px;
+}
+
+.largeAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #a2cb8b;
+  border: 2px solid #84b179;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.greeting {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+  color: #202124;
+}
+
+.email {
+  font-size: 0.9rem;
+  color: #5f6368;
+  margin: 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #84b179;
+  margin: 8px 0;
+}
+
+.menuItems {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+.menuItems button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #3c4043;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menuItems button:hover {
+  background-color: #a2cb8b;
+}
+
+.logoutBtn {
+  color: #d93025 !important;
+}

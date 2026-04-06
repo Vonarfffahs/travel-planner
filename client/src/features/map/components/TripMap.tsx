@@ -1,34 +1,83 @@
-import { MapContainer, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  ZoomControl,
+} from 'react-leaflet';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { StoreState } from '../../../store';
 import { RoutingControl } from './RoutingControl';
+import { historicPlacesAPI } from '../../../api';
+import { setHistoricPlaces } from '../../../store/tripSlice';
 
-// Обов'язково треба задати висоту контейнера карти
-const mapStyles = { height: '100vh', width: '100%' };
-
-// Мок-дані для тематичної подорожі історичними містами України
-// Зіставлення з БД: lat = coordY (широта), lng = coordX (довгота)
-const optimizedRoute = [
-  { lat: 50.4501, lng: 30.5234, name: 'Київ' },
-  { lat: 51.4982, lng: 31.2893, name: 'Чернігів' },
-  { lat: 50.7412, lng: 25.3254, name: 'Луцьк' },
-  { lat: 49.8397, lng: 24.0297, name: 'Львів' },
-  { lat: 48.6208, lng: 22.2879, name: 'Ужгород' },
-  { lat: 48.2915, lng: 25.9348, name: 'Чернівці' },
-  { lat: 48.6708, lng: 26.5806, name: "Кам'янець-Подільський" },
-  { lat: 46.4825, lng: 30.7233, name: 'Одеса' },
-];
+import 'leaflet/dist/leaflet.css';
 
 export const TripMap = () => {
+  const ukrainesPositionOnPage: [number, number] = [49.0, 27.0];
+  const mapStyles = { height: '100vh', width: '100%', zIndex: 0 };
+  const zoomLevel: number = 6;
+  const trip = useSelector((state: StoreState) => state.trip.calculatedTrip);
+
+  const dispatch = useDispatch();
+  const historicPlacesData = useSelector(
+    (state: StoreState) => state.trip.historicPlaces,
+  );
+
+  useEffect(() => {
+    const fetchHistoricPlaces = async () => {
+      if (historicPlacesData.length > 0) return;
+
+      try {
+        const response = await historicPlacesAPI.getHistoricPlaces();
+        dispatch(setHistoricPlaces(response.data));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchHistoricPlaces();
+  }, [historicPlacesData.length, dispatch]);
+
+  useEffect(() => {
+    console.log(historicPlacesData);
+  }, [historicPlacesData]);
+
   return (
-    // Центруємо карту приблизно посередині України з меншим зумом (zoom={6})
-    <MapContainer center={[49.0, 31.0]} zoom={6} style={mapStyles}>
+    <MapContainer
+      center={ukrainesPositionOnPage}
+      zoom={zoomLevel}
+      style={mapStyles}
+      zoomControl={false}
+    >
+      <ZoomControl position="bottomright" />
+
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {/* Передаємо точки маршруту в наш кастомний компонент */}
-      <RoutingControl points={optimizedRoute} />
+      {trip
+        ? trip.path.map((place) => {
+            return (
+              <Marker key={place.id} position={[place.coordY, place.coordX]}>
+                <Popup>
+                  {place.name} <br />
+                  VisitOrder: {place.visitOrder}
+                </Popup>
+              </Marker>
+            );
+          })
+        : historicPlacesData.map((place) => {
+            return (
+              <Marker key={place.id} position={[place.coordY, place.coordX]}>
+                <Popup>{place.name}</Popup>
+              </Marker>
+            );
+          })}
+
+      <RoutingControl />
     </MapContainer>
   );
 };

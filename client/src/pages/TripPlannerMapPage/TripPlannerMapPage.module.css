@@ -1,0 +1,35 @@
+.hideSidebarBtnContainer {
+  display: block;
+  position: absolute;
+  z-index: 1;
+  top: calc(50% - 24px);
+  left: 480px;
+
+  transition: left 0.3s ease;
+}
+
+.containerHidden {
+  left: 0;
+}
+
+.hideSidebarBtn {
+  display: flex;
+  background-color: #c7eabb;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 23px;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  box-shadow:
+    0 1px 2px rgba(60, 64, 67, 0.3),
+    0 2px 6px 2px rgba(60, 64, 67, 0.15);
+}
+
+.icon {
+  transition: all 0.3s ease;
+}
+
+.sidebarIsHiddenIcon {
+  transform: scaleX(-1);
+}
