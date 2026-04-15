@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, Length } from 'class-validator';
-import { ReadAllQueryDTO } from 'src/common/dto';
+import { ReadAllQueryDTO } from 'src/common';
 
 export class ReadAllAlgorithmsQueryDTO extends ReadAllQueryDTO {
   @IsOptional()

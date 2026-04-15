@@ -12,13 +12,14 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
+  BanUserDTO,
   CreateUserDTO,
-  GetUserParams,
   ReadAllUsersDTO,
   ReadAllUsersQueryDTO,
   ReadUserDTO,
 } from './dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { IdParamDTO } from 'src/common';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -34,10 +35,10 @@ export class UsersController {
     return this.usersService.getAll(query);
   }
 
-  @Get(':userId')
+  @Get(':id')
   @ApiOperation({ summary: 'Get a specific user by ID' })
   @ApiParam({
-    name: 'userId',
+    name: 'id',
     description: 'UUID of the user',
     example: 'cc98cacc-e166-4cfd-8bd9-f51797808c79',
   })
@@ -47,8 +48,8 @@ export class UsersController {
     type: ReadUserDTO,
   })
   @ApiResponse({ status: 404, description: 'User not found' })
-  getOne(@Param() { userId }: GetUserParams): Promise<ReadUserDTO> {
-    return this.usersService.getOne(userId);
+  getOne(@Param() { id }: IdParamDTO): Promise<ReadUserDTO> {
+    return this.usersService.getOne(id);
   }
 
   @Post('create')
@@ -65,10 +66,10 @@ export class UsersController {
     return this.usersService.getOne(id);
   }
 
-  @Put(':userId')
+  @Put(':id')
   @ApiOperation({ summary: 'Update an existing user' })
   @ApiParam({
-    name: 'userId',
+    name: 'id',
     description: 'UUID of the user to update',
     example: 'cc98cacc-e166-4cfd-8bd9-f51797808c79',
   })
@@ -80,18 +81,32 @@ export class UsersController {
   })
   @ApiResponse({ status: 404, description: 'User not found' })
   async update(
-    @Param() { userId }: GetUserParams,
+    @Param() { id }: IdParamDTO,
     @Body() data: CreateUserDTO,
   ): Promise<ReadUserDTO> {
-    await this.usersService.update(userId, data);
-    return this.usersService.getOne(userId);
+    await this.usersService.update(id, data);
+    return this.usersService.getOne(id);
   }
 
-  @Delete(':userId')
+  @Post(':id/ban')
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the user to delete',
+    example: 'cc98cacc-e166-4cfd-8bd9-f51797808c79',
+  })
+  @ApiBody({ type: BanUserDTO })
+  ban(
+    @Param() { id }: IdParamDTO,
+    @Body() data: BanUserDTO,
+  ): Promise<ReadUserDTO> {
+    return this.usersService.ban(id, data);
+  }
+
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiParam({
-    name: 'userId',
+    name: 'id',
     description: 'UUID of the user to delete',
     example: 'cc98cacc-e166-4cfd-8bd9-f51797808c79',
   })
@@ -100,7 +115,7 @@ export class UsersController {
     description: 'The user has been successfully deleted',
   })
   @ApiResponse({ status: 404, description: 'User not found' })
-  delete(@Param() { userId }: GetUserParams): Promise<void> {
-    return this.usersService.delete(userId);
+  delete(@Param() { id }: IdParamDTO): Promise<void> {
+    return this.usersService.delete(id);
   }
 }

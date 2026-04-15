@@ -1,6 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
-import { MAX_PAGE_SIZE } from 'src/config';
+import { config } from '../config';
+
+const MAX_PAGE_SIZE = config.maxPageSize;
 
 export class ReadAllQueryDTO {
   @IsOptional()

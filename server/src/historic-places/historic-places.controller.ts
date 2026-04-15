@@ -13,12 +13,12 @@ import {
 import { HistoricPlacesService } from './historic-places.service';
 import {
   CreateHistoricPlaceDTO,
-  GetHistoricPlaceParams,
   ReadAllHistoricPlacesDTO,
   ReadAllHistoricPlacesQueryDTO,
   ReadHistoricPlaceDTO,
 } from './dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { IdParamDTO } from 'src/common';
 
 @Controller('historic-places')
 export class HistoricPlacesController {
@@ -39,10 +39,10 @@ export class HistoricPlacesController {
     return this.historicPlacesService.getAll(query);
   }
 
-  @Get(':historicPlaceId')
+  @Get(':id')
   @ApiOperation({ summary: 'Get a specific historic place by ID' })
   @ApiParam({
-    name: 'historicPlaceId',
+    name: 'id',
     description: 'UUID of the historic place',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
@@ -52,10 +52,8 @@ export class HistoricPlacesController {
     type: ReadHistoricPlaceDTO,
   })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
-  getOne(
-    @Param() { historicPlaceId }: GetHistoricPlaceParams,
-  ): Promise<ReadHistoricPlaceDTO> {
-    return this.historicPlacesService.getOne(historicPlaceId);
+  getOne(@Param() { id }: IdParamDTO): Promise<ReadHistoricPlaceDTO> {
+    return this.historicPlacesService.getOne(id);
   }
 
   @Post('create')
@@ -73,10 +71,10 @@ export class HistoricPlacesController {
     return this.historicPlacesService.getOne(id);
   }
 
-  @Put(':historicPlaceId')
+  @Put(':id')
   @ApiOperation({ summary: 'Update an existing historic place' })
   @ApiParam({
-    name: 'historicPlaceId',
+    name: 'id',
     description: 'UUID of the historic place to update',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
@@ -88,18 +86,18 @@ export class HistoricPlacesController {
   })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
   async update(
-    @Param() { historicPlaceId }: GetHistoricPlaceParams,
+    @Param() { id }: IdParamDTO,
     @Body() data: CreateHistoricPlaceDTO,
   ): Promise<ReadHistoricPlaceDTO> {
-    await this.historicPlacesService.update(historicPlaceId, data);
-    return this.historicPlacesService.getOne(historicPlaceId);
+    await this.historicPlacesService.update(id, data);
+    return this.historicPlacesService.getOne(id);
   }
 
-  @Delete(':historicPlaceId')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a historic place' })
   @ApiParam({
-    name: 'historicPlaceId',
+    name: 'id',
     description: 'UUID of the historic place to delete',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
@@ -108,8 +106,8 @@ export class HistoricPlacesController {
     description: 'The historic place has been successfully deleted',
   })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
-  delete(@Param() { historicPlaceId }: GetHistoricPlaceParams): Promise<void> {
-    return this.historicPlacesService.delete(historicPlaceId);
+  delete(@Param() { id }: IdParamDTO): Promise<void> {
+    return this.historicPlacesService.delete(id);
   }
 
   @Post('generate-matrix')

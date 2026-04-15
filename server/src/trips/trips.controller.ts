@@ -13,12 +13,12 @@ import {
 import { TripsService } from './trips.service';
 import {
   CreateTripDTO,
-  GetTripParams,
   ReadAllTripsDTO,
   ReadAllTripsQueryDTO,
   ReadTripDTO,
 } from './dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { IdParamDTO } from 'src/common';
 
 @Controller('trips')
 export class TripsController {
@@ -35,10 +35,10 @@ export class TripsController {
     return this.tripsService.getAll(query);
   }
 
-  @Get(':tripId')
+  @Get(':id')
   @ApiOperation({ summary: 'Get trip details by ID' })
   @ApiParam({
-    name: 'tripId',
+    name: 'id',
     description: 'UUID of the trip',
     example: '5417acea-28ff-4ae1-8b55-768c12bf784e',
   })
@@ -48,8 +48,8 @@ export class TripsController {
     type: ReadTripDTO,
   })
   @ApiResponse({ status: 404, description: 'Trip not found' })
-  getOne(@Param() { tripId }: GetTripParams): Promise<ReadTripDTO> {
-    return this.tripsService.getOne(tripId);
+  getOne(@Param() { id }: IdParamDTO): Promise<ReadTripDTO> {
+    return this.tripsService.getOne(id);
   }
 
   @Post('create')
@@ -70,10 +70,10 @@ export class TripsController {
     return this.tripsService.getOne(id);
   }
 
-  @Put(':tripId')
+  @Put(':id')
   @ApiOperation({ summary: 'Update an existing trip' })
   @ApiParam({
-    name: 'tripId',
+    name: 'id',
     description: 'UUID of the trip to update',
   })
   @ApiBody({ type: CreateTripDTO })
@@ -83,22 +83,22 @@ export class TripsController {
     type: ReadTripDTO,
   })
   async update(
-    @Param() { tripId }: GetTripParams,
+    @Param() { id }: IdParamDTO,
     @Body() data: CreateTripDTO,
   ): Promise<ReadTripDTO> {
-    await this.tripsService.update(tripId, data);
-    return this.tripsService.getOne(tripId);
+    await this.tripsService.update(id, data);
+    return this.tripsService.getOne(id);
   }
 
-  @Delete(':tripId')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a trip' })
   @ApiParam({
-    name: 'tripId',
+    name: 'id',
     description: 'UUID of the trip to delete',
   })
   @ApiResponse({ status: 204, description: 'Trip deleted successfully' })
-  delete(@Param() { tripId }: GetTripParams): Promise<void> {
-    return this.tripsService.remove(tripId);
+  delete(@Param() { id }: IdParamDTO): Promise<void> {
+    return this.tripsService.remove(id);
   }
 }

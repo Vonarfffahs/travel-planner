@@ -19,4 +19,16 @@ export class ReadAlgorithmDTO {
     description: 'Short description of how the algorithm works',
   })
   description: string;
+
+  @ApiProperty({
+    example: '2026-04-15T11:46:27.210Z',
+    description: 'Algorithm creation date',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    example: '2026-04-15T11:46:27.210Z',
+    description: 'Algorithm update date',
+  })
+  updatedAt: Date;
 }

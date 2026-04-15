@@ -8,6 +8,51 @@ generator client {
   moduleFormat = "cjs"
 }
 
+enum UserRole {
+  admin
+  user
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  active
+  banned
+
+  @@map("user_status")
+}
+
+model PasswordReset {
+  userId    String   @id @db.Uuid @map("user_id")
+  attempts  Int      @db.Integer @default(0)
+  code      String   @db.VarChar()
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @db.Timestamptz() @map("created_at") @default(now())
+  expiresAt DateTime @db.Timestamptz() @map("expires_at")
+
+  @@map("password_reset")
+}
+
+model User {
+  id String @id @db.Uuid @default(uuid(4))
+
+  nickname  String  @unique @db.VarChar()
+  email     String  @unique @db.VarChar()
+  hash      String? @db.VarChar()
+  role      UserRole
+  status    UserStatus
+
+  passwordReset PasswordReset?
+  trips Trip[]
+
+  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
+  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
+
+  @@map("user")
+}
+
 model HistoricPlace {
   id String @id @db.Uuid @default(uuid(4))
 
@@ -118,18 +163,4 @@ model AlgorithmParameters {
   updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
 
   @@map("algorithm_parameters")
-}
-
-model User {
-  id String @id @db.Uuid @default(uuid(4))
-
-  nickname  String @unique
-  email     String @unique
-
-  trips Trip[]
-
-  createdAt DateTime @map("created_at") @db.Timestamptz() @default(now())
-  updatedAt DateTime @map("updated_at") @db.Timestamptz() @updatedAt
-
-  @@map("user")
 }

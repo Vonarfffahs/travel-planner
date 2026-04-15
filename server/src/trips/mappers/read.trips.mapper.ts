@@ -13,11 +13,15 @@ export class ReadTripMapper {
       totalTime: trip.totalTime,
       calculationTime: trip.calculationTime,
       userId: trip.userId,
+      createdAt: trip.createdAt,
+      updatedAt: trip.updatedAt,
 
       algorithm: {
         id: trip.algorithm.id,
         name: trip.algorithm.name,
         description: trip.algorithm.description,
+        createdAt: trip.algorithm.createdAt,
+        updatedAt: trip.algorithm.updatedAt,
       },
 
       parameters: trip.parameters
@@ -41,6 +45,8 @@ export class ReadTripMapper {
           coordY: step.historicPlace.coordY,
           historicValue: step.historicPlace.historicValue,
           daysToVisit: step.historicPlace.daysToVisit,
+          createdAt: step.historicPlace.createdAt,
+          updatedAt: step.historicPlace.updatedAt,
         },
       })),
     };
