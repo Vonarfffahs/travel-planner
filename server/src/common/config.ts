@@ -1,4 +1,7 @@
 import convict from 'convict';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const schema = convict({
   port: {
@@ -6,6 +9,50 @@ const schema = convict({
     format: Number,
     default: 3000,
     env: 'PORT',
+  },
+  email: {
+    service: {
+      doc: 'Service type for email',
+      format: String,
+      default: 'gmail',
+      env: 'EMAIL_SERVICE',
+    },
+    auth: {
+      user: {
+        doc: 'Login for email',
+        format: String,
+        default: '',
+        env: 'EMAIL_USER',
+      },
+      pass: {
+        doc: 'Password for email',
+        format: String,
+        default: '',
+        env: 'EMAIL_PASSWORD',
+      },
+    },
+    hello: {
+      subject: {
+        doc: 'Confirm your email',
+        format: String,
+        default: 'Confirm your email',
+        env: 'EMAIL_HELLO_SUBJECT',
+      },
+    },
+  },
+  frontend: {
+    baseUrl: {
+      doc: 'Frontend application base URL',
+      format: String,
+      default: 'https://localhost:5173',
+      env: 'FRONTEND_URL',
+    },
+    confirmUrl: {
+      doc: 'Frontend confirm-account URL',
+      format: String,
+      default: '/confirm',
+      env: 'FRONTEND_CONFIRM_URL',
+    },
   },
   maxPageSize: {
     doc: 'Maximum items number per page',

@@ -20,7 +20,7 @@ export class SetPasswordDTO {
 
   @IsNotEmpty()
   @ApiProperty({
-    example: 'asdsa',
+    example: 'Password!1',
     description: 'Valid password',
   })
   @IsStrongPassword()

@@ -15,12 +15,14 @@ import {
 import { Prisma, UserStatus } from 'generated/prisma/client';
 import { randomUUID } from 'crypto';
 import { PasswordResetService } from './password-reset.service';
+import { HelloEmailService } from 'src/email';
 
 @Injectable()
 export class UsersService {
   private readonly mapper = new ReadUserMapper();
 
   constructor(
+    private readonly helloEmailService: HelloEmailService,
     private readonly passwordResetService: PasswordResetService,
     private readonly prismaService: PrismaService,
   ) {}
@@ -75,7 +77,12 @@ export class UsersService {
       },
     });
 
-    await this.passwordResetService.createOrReplace(id, data.email);
+    const reset = await this.passwordResetService.createOrReplace(id);
+    await this.helloEmailService.send({
+      ...reset,
+      email: data.email,
+      nickname: data.nickname,
+    });
 
     return id;
   }
