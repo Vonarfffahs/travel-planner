@@ -22,7 +22,7 @@ export class ProfileController {
     description: 'User`s data received successfully',
   })
   @ApiResponse({ status: 404, description: 'User is not found ' })
-  getProfile(): ReadProfileDTO {
+  getProfile(): Promise<ReadProfileDTO> {
     return this.profileService.getSelf(randomUUID());
   }
 
