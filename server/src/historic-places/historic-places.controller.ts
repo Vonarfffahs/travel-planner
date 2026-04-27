@@ -28,6 +28,8 @@ import {
 import { AccessGuard, IdParamDTO, Roles } from 'src/common';
 import { UserRole } from 'src/users/dto';
 
+const ERROR_401_MESSAGE = 'Wrong or missing token';
+
 @Controller('historic-places')
 @UseGuards(AccessGuard)
 @Roles(UserRole.Admin)
@@ -44,6 +46,7 @@ export class HistoricPlacesController {
     description: 'List of historic places retrieved successfully',
     type: ReadAllHistoricPlacesDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   getAll(
     @Query() query: ReadAllHistoricPlacesQueryDTO,
   ): Promise<ReadAllHistoricPlacesDTO> {
@@ -62,6 +65,7 @@ export class HistoricPlacesController {
     description: 'The historic place details',
     type: ReadHistoricPlaceDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
   getOne(@Param() { id }: IdParamDTO): Promise<ReadHistoricPlaceDTO> {
     return this.historicPlacesService.getOne(id);
@@ -75,6 +79,7 @@ export class HistoricPlacesController {
     description: 'The historic place has been successfully created',
     type: ReadHistoricPlaceDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   async create(
     @Body() data: CreateHistoricPlaceDTO,
   ): Promise<ReadHistoricPlaceDTO> {
@@ -95,6 +100,7 @@ export class HistoricPlacesController {
     description: 'The historic place has been successfully updated',
     type: ReadHistoricPlaceDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
   async update(
     @Param() { id }: IdParamDTO,
@@ -116,6 +122,7 @@ export class HistoricPlacesController {
     status: 204,
     description: 'The historic place has been successfully deleted',
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
   delete(@Param() { id }: IdParamDTO): Promise<void> {
     return this.historicPlacesService.delete(id);
@@ -129,6 +136,7 @@ export class HistoricPlacesController {
     status: 201,
     description: 'Matrix generation triggered successfully',
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   generateMatrix() {
     return this.historicPlacesService.generateCostMatrix();
   }

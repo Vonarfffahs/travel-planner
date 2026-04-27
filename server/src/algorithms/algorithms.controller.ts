@@ -26,13 +26,20 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { CalculateTripDto } from './dto/calculate.trip.dto';
-import { AccessGuard, IdParamDTO, Roles } from 'src/common';
+import {
+  AccessGuard,
+  IdParamDTO,
+  Roles,
+  SWAGGER_BEARER_NAME,
+} from 'src/common';
 import { UserRole } from 'src/users/dto';
+
+const ERROR_401_MESSAGE = 'Wrong or missing token';
 
 @Controller('algorithms')
 @UseGuards(AccessGuard)
+@ApiBearerAuth(SWAGGER_BEARER_NAME)
 @Roles(UserRole.Admin)
-@ApiBearerAuth('access-token')
 export class AlgorithmsController {
   constructor(private readonly algorithmsService: AlgorithmsService) {}
 
@@ -43,6 +50,7 @@ export class AlgorithmsController {
     description: 'List of algorithms retrieved successfully',
     type: ReadAllAlgorithmsDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   getAll(
     @Query() query: ReadAllAlgorithmsQueryDTO,
   ): Promise<ReadAllAlgorithmsDTO> {
@@ -61,6 +69,7 @@ export class AlgorithmsController {
     description: 'The algorithm details',
     type: ReadAlgorithmDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Algorithm not found' })
   getOne(@Param() { id }: IdParamDTO): Promise<ReadAlgorithmDTO> {
     return this.algorithmsService.getOne(id);
@@ -74,6 +83,7 @@ export class AlgorithmsController {
     description: 'The algorithm has been successfully created',
     type: ReadAlgorithmDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   async create(@Body() data: CreateAlgorithmDTO): Promise<ReadAlgorithmDTO> {
     const id = await this.algorithmsService.create(data);
     return this.algorithmsService.getOne(id);
@@ -92,6 +102,7 @@ export class AlgorithmsController {
     description: 'The algorithm has been successfully updated',
     type: ReadAlgorithmDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Algorithm not found' })
   async update(
     @Param() { id }: IdParamDTO,
@@ -113,6 +124,7 @@ export class AlgorithmsController {
     status: 204,
     description: 'The algorithm has been successfully deleted',
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Algorithm not found' })
   delete(@Param() { id }: IdParamDTO): Promise<void> {
     return this.algorithmsService.delete(id);
@@ -121,6 +133,7 @@ export class AlgorithmsController {
   @Post('calculate')
   @ApiOperation({ summary: 'Calculate optimal route' })
   @ApiResponse({ status: 200, description: 'Route calculated successfully' })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   async calculateTrip(@Body() data: CalculateTripDto) {
     return this.algorithmsService.calculate(data);
   }

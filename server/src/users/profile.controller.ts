@@ -15,22 +15,24 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AccessGuard, User } from 'src/common';
+import { AccessGuard, SWAGGER_BEARER_NAME, User } from 'src/common';
 import type { JWTUser } from 'src/auth/models';
 
 @Controller('profile')
-@ApiBearerAuth('access-token')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get()
   @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Get user`s data for non-admin role' })
   @ApiResponse({
     status: 200,
     description: 'User`s data received successfully',
+    type: ReadProfileDTO,
   })
-  @ApiResponse({ status: 404, description: 'User is not found ' })
+  @ApiResponse({ status: 401, description: 'Wrong or missing token' })
+  @ApiResponse({ status: 404, description: 'User is not found' })
   getProfile(@User() user: JWTUser): Promise<ReadProfileDTO> {
     return this.profileService.getSelf(user.userId);
   }

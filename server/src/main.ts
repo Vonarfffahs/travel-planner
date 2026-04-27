@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { config as envVarsConfig } from './common';
+import { config, config as envVarsConfig, setupSwagger } from './common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,32 +17,9 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('Travel Planner API')
-    .setDescription('Travel planner with ACO and Greedy algorithms')
-    .setVersion('1.0')
-    .addTag('Algorithms', 'Endpoints for algorithms management')
-    .addTag('Users', 'Operations with users for admins')
-    .addTag('Trips', 'Trip creation and calculation')
-    .addTag('HistoricPlaces', 'Places management')
-    .addTag('Auth', 'Authorization')
-    .addTag('Profile', 'Operations with users for regular users')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-      'access-token',
-    )
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/api/docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+  if (config.env !== 'production') {
+    setupSwagger(app);
+  }
 
   await app.listen(envVarsConfig.port);
 }
