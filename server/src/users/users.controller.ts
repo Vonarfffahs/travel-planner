@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -17,10 +18,20 @@ import {
   ReadAllUsersDTO,
   ReadAllUsersQueryDTO,
   ReadUserDTO,
+  UserRole,
 } from './dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { IdParamDTO } from 'src/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { AccessGuard, IdParamDTO, Roles } from 'src/common';
+
 @Controller('users')
+@UseGuards(AccessGuard)
+@ApiBearerAuth('access-token')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -89,6 +100,7 @@ export class UsersController {
   }
 
   @Post(':id/ban')
+  @Roles(UserRole.Admin)
   @ApiParam({
     name: 'id',
     description: 'UUID of the user to delete',

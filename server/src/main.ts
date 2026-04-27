@@ -23,13 +23,27 @@ async function bootstrap() {
     .setDescription('Travel planner with ACO and Greedy algorithms')
     .setVersion('1.0')
     .addTag('Algorithms', 'Endpoints for algorithms management')
-    .addTag('Users', 'Operations with users')
+    .addTag('Users', 'Operations with users for admins')
     .addTag('Trips', 'Trip creation and calculation')
     .addTag('HistoricPlaces', 'Places management')
+    .addTag('Auth', 'Authorization')
+    .addTag('Profile', 'Operations with users for regular users')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/api/docs', app, document);
+  SwaggerModule.setup('/api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   await app.listen(envVarsConfig.port);
 }

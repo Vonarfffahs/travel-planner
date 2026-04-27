@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AlgorithmsService } from './algorithms.service';
 import {
@@ -17,11 +18,21 @@ import {
   ReadAllAlgorithmsDTO,
   ReadAllAlgorithmsQueryDTO,
 } from './dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { CalculateTripDto } from './dto/calculate.trip.dto';
-import { IdParamDTO } from 'src/common';
+import { AccessGuard, IdParamDTO, Roles } from 'src/common';
+import { UserRole } from 'src/users/dto';
 
 @Controller('algorithms')
+@UseGuards(AccessGuard)
+@Roles(UserRole.Admin)
+@ApiBearerAuth('access-token')
 export class AlgorithmsController {
   constructor(private readonly algorithmsService: AlgorithmsService) {}
 

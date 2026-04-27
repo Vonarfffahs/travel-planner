@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { HistoricPlacesService } from './historic-places.service';
 import {
@@ -17,10 +18,20 @@ import {
   ReadAllHistoricPlacesQueryDTO,
   ReadHistoricPlaceDTO,
 } from './dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { IdParamDTO } from 'src/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { AccessGuard, IdParamDTO, Roles } from 'src/common';
+import { UserRole } from 'src/users/dto';
 
 @Controller('historic-places')
+@UseGuards(AccessGuard)
+@Roles(UserRole.Admin)
+@ApiBearerAuth('access-token')
 export class HistoricPlacesController {
   constructor(private readonly historicPlacesService: HistoricPlacesService) {}
 

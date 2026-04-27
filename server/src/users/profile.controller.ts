@@ -5,25 +5,34 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ReadProfileDTO, ResetPasswordDTO, SetPasswordDTO } from './dto';
-import { randomUUID } from 'crypto';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { AccessGuard, User } from 'src/common';
+import type { JWTUser } from 'src/auth/models';
 
 @Controller('profile')
+@ApiBearerAuth('access-token')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get()
+  @UseGuards(AccessGuard)
   @ApiOperation({ summary: 'Get user`s data for non-admin role' })
   @ApiResponse({
     status: 200,
     description: 'User`s data received successfully',
   })
   @ApiResponse({ status: 404, description: 'User is not found ' })
-  getProfile(): Promise<ReadProfileDTO> {
-    return this.profileService.getSelf(randomUUID());
+  getProfile(@User() user: JWTUser): Promise<ReadProfileDTO> {
+    return this.profileService.getSelf(user.userId);
   }
 
   @Post('reset')
