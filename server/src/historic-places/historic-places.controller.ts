@@ -25,15 +25,17 @@ import {
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AccessGuard, IdParamDTO, Roles } from 'src/common';
+import {
+  AccessGuard,
+  IdParamDTO,
+  Roles,
+  SWAGGER_BEARER_NAME,
+} from 'src/common';
 import { UserRole } from 'src/users/dto';
 
 const ERROR_401_MESSAGE = 'Wrong or missing token';
 
 @Controller('historic-places')
-@UseGuards(AccessGuard)
-@Roles(UserRole.Admin)
-@ApiBearerAuth('access-token')
 export class HistoricPlacesController {
   constructor(private readonly historicPlacesService: HistoricPlacesService) {}
 
@@ -72,6 +74,9 @@ export class HistoricPlacesController {
   }
 
   @Post('create')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Create a new historic place' })
   @ApiBody({ type: CreateHistoricPlaceDTO })
   @ApiResponse({
@@ -88,6 +93,9 @@ export class HistoricPlacesController {
   }
 
   @Put(':id')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Update an existing historic place' })
   @ApiParam({
     name: 'id',
@@ -111,6 +119,9 @@ export class HistoricPlacesController {
   }
 
   @Delete(':id')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a historic place' })
   @ApiParam({
@@ -129,6 +140,9 @@ export class HistoricPlacesController {
   }
 
   @Post('generate-matrix')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({
     summary: 'Generate distance matrix (Travel Costs) for all places',
   })
