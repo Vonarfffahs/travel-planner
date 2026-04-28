@@ -76,4 +76,16 @@ export class ReadTripDTO {
     description: 'Algorithm used for calculation',
   })
   algorithm: ReadAlgorithmDTO;
+
+  @ApiProperty({
+    example: '2026-04-15T11:46:27.210Z',
+    description: 'Trip creation date',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    example: '2026-04-15T11:46:27.210Z',
+    description: 'Trip update date',
+  })
+  updatedAt: Date;
 }

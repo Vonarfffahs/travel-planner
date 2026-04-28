@@ -9,16 +9,31 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { HistoricPlacesService } from './historic-places.service';
 import {
   CreateHistoricPlaceDTO,
-  GetHistoricPlaceParams,
   ReadAllHistoricPlacesDTO,
   ReadAllHistoricPlacesQueryDTO,
   ReadHistoricPlaceDTO,
 } from './dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
+import {
+  AccessGuard,
+  IdParamDTO,
+  Roles,
+  SWAGGER_BEARER_NAME,
+} from 'src/common';
+import { UserRole } from 'src/users/dto';
+
+const ERROR_401_MESSAGE = 'Wrong or missing token';
 
 @Controller('historic-places')
 export class HistoricPlacesController {
@@ -33,16 +48,17 @@ export class HistoricPlacesController {
     description: 'List of historic places retrieved successfully',
     type: ReadAllHistoricPlacesDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   getAll(
     @Query() query: ReadAllHistoricPlacesQueryDTO,
   ): Promise<ReadAllHistoricPlacesDTO> {
     return this.historicPlacesService.getAll(query);
   }
 
-  @Get(':historicPlaceId')
+  @Get(':id')
   @ApiOperation({ summary: 'Get a specific historic place by ID' })
   @ApiParam({
-    name: 'historicPlaceId',
+    name: 'id',
     description: 'UUID of the historic place',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
@@ -51,14 +67,16 @@ export class HistoricPlacesController {
     description: 'The historic place details',
     type: ReadHistoricPlaceDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
-  getOne(
-    @Param() { historicPlaceId }: GetHistoricPlaceParams,
-  ): Promise<ReadHistoricPlaceDTO> {
-    return this.historicPlacesService.getOne(historicPlaceId);
+  getOne(@Param() { id }: IdParamDTO): Promise<ReadHistoricPlaceDTO> {
+    return this.historicPlacesService.getOne(id);
   }
 
   @Post('create')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Create a new historic place' })
   @ApiBody({ type: CreateHistoricPlaceDTO })
   @ApiResponse({
@@ -66,6 +84,7 @@ export class HistoricPlacesController {
     description: 'The historic place has been successfully created',
     type: ReadHistoricPlaceDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   async create(
     @Body() data: CreateHistoricPlaceDTO,
   ): Promise<ReadHistoricPlaceDTO> {
@@ -73,10 +92,13 @@ export class HistoricPlacesController {
     return this.historicPlacesService.getOne(id);
   }
 
-  @Put(':historicPlaceId')
+  @Put(':id')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Update an existing historic place' })
   @ApiParam({
-    name: 'historicPlaceId',
+    name: 'id',
     description: 'UUID of the historic place to update',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
@@ -86,20 +108,24 @@ export class HistoricPlacesController {
     description: 'The historic place has been successfully updated',
     type: ReadHistoricPlaceDTO,
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
   async update(
-    @Param() { historicPlaceId }: GetHistoricPlaceParams,
+    @Param() { id }: IdParamDTO,
     @Body() data: CreateHistoricPlaceDTO,
   ): Promise<ReadHistoricPlaceDTO> {
-    await this.historicPlacesService.update(historicPlaceId, data);
-    return this.historicPlacesService.getOne(historicPlaceId);
+    await this.historicPlacesService.update(id, data);
+    return this.historicPlacesService.getOne(id);
   }
 
-  @Delete(':historicPlaceId')
+  @Delete(':id')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a historic place' })
   @ApiParam({
-    name: 'historicPlaceId',
+    name: 'id',
     description: 'UUID of the historic place to delete',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
@@ -107,12 +133,16 @@ export class HistoricPlacesController {
     status: 204,
     description: 'The historic place has been successfully deleted',
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   @ApiResponse({ status: 404, description: 'Historic place not found' })
-  delete(@Param() { historicPlaceId }: GetHistoricPlaceParams): Promise<void> {
-    return this.historicPlacesService.delete(historicPlaceId);
+  delete(@Param() { id }: IdParamDTO): Promise<void> {
+    return this.historicPlacesService.delete(id);
   }
 
   @Post('generate-matrix')
+  @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({
     summary: 'Generate distance matrix (Travel Costs) for all places',
   })
@@ -120,6 +150,7 @@ export class HistoricPlacesController {
     status: 201,
     description: 'Matrix generation triggered successfully',
   })
+  @ApiResponse({ status: 401, description: ERROR_401_MESSAGE })
   generateMatrix() {
     return this.historicPlacesService.generateCostMatrix();
   }

@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { HistoricPlacesModule } from './historic-places/historic-places.module';
 import { PrismaModule, PrismaService } from './prisma';
-import { TripsModule } from './trips/trips.module';
-import { AlgorithmsModule } from './algorithms/algorithms.module';
-import { UsersModule } from './users/users.module';
+import { HistoricPlacesModule } from './historic-places';
+import { TripsModule } from './trips';
+import { AlgorithmsModule } from './algorithms';
+import { UsersModule } from './users';
+import { AuthModule } from './auth';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    AuthModule,
     PrismaModule,
     HistoricPlacesModule,
     TripsModule,

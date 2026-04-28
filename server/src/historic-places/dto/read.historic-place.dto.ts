@@ -36,4 +36,16 @@ export class ReadHistoricPlaceDTO {
     description: 'Time required to visit in days (d_j)',
   })
   daysToVisit: number; // d_j
+
+  @ApiProperty({
+    example: '2026-04-15T11:46:27.210Z',
+    description: 'Historic place creation date',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    example: '2026-04-15T11:46:27.210Z',
+    description: 'Historic place update date',
+  })
+  updatedAt: Date;
 }

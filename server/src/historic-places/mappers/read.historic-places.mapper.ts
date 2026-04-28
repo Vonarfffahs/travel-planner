@@ -10,6 +10,8 @@ export class ReadHistoricPlaceMapper {
       coordY: historicPlace.coordY,
       historicValue: historicPlace.historicValue,
       daysToVisit: historicPlace.daysToVisit,
+      createdAt: historicPlace.createdAt,
+      updatedAt: historicPlace.updatedAt,
     };
   }
 

@@ -7,6 +7,8 @@ export class ReadAlgorithmMapper {
       id: algorithm.id,
       name: algorithm.name,
       description: algorithm.description,
+      createdAt: algorithm.createdAt,
+      updatedAt: algorithm.updatedAt,
     };
   }
 
