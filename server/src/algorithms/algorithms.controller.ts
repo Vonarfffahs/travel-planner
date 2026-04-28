@@ -37,13 +37,13 @@ import { UserRole } from 'src/users/dto';
 const ERROR_401_MESSAGE = 'Wrong or missing token';
 
 @Controller('algorithms')
-@UseGuards(AccessGuard)
-@ApiBearerAuth(SWAGGER_BEARER_NAME)
-@Roles(UserRole.Admin)
 export class AlgorithmsController {
   constructor(private readonly algorithmsService: AlgorithmsService) {}
 
   @Get()
+  @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
+  @Roles(UserRole.Admin)
   @ApiOperation({ summary: 'Get all algorithms with pagination and filtering' })
   @ApiResponse({
     status: 200,
@@ -58,6 +58,9 @@ export class AlgorithmsController {
   }
 
   @Get(':id')
+  @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
+  @Roles(UserRole.Admin)
   @ApiOperation({ summary: 'Get a specific algorithm by ID' })
   @ApiParam({
     name: 'id',
@@ -76,6 +79,9 @@ export class AlgorithmsController {
   }
 
   @Post('create')
+  @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
+  @Roles(UserRole.Admin)
   @ApiOperation({ summary: 'Create a new algorithm' })
   @ApiBody({ type: CreateAlgorithmDTO })
   @ApiResponse({
@@ -90,6 +96,9 @@ export class AlgorithmsController {
   }
 
   @Put(':id')
+  @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
+  @Roles(UserRole.Admin)
   @ApiOperation({ summary: 'Update an existing algorithm' })
   @ApiParam({
     name: 'id',
@@ -113,6 +122,9 @@ export class AlgorithmsController {
   }
 
   @Delete(':id')
+  @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
+  @Roles(UserRole.Admin)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an algorithm' })
   @ApiParam({

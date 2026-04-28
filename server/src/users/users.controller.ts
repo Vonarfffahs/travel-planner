@@ -42,6 +42,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
   @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Get all users with pagination and filtering' })
   @ApiResponse({
@@ -56,6 +57,7 @@ export class UsersController {
 
   @Get(':id')
   @UseGuards(AccessGuard)
+  @Roles(UserRole.Admin)
   @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Get a specific user by ID' })
   @ApiParam({
@@ -90,6 +92,7 @@ export class UsersController {
 
   @Put(':id')
   @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiOperation({ summary: 'Update an existing user' })
   @ApiParam({
     name: 'id',
@@ -114,8 +117,8 @@ export class UsersController {
 
   @Post(':id/ban')
   @UseGuards(AccessGuard)
-  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @Roles(UserRole.Admin)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @ApiParam({
     name: 'id',
     description: 'UUID of the user to delete',
@@ -137,6 +140,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(AccessGuard)
+  @ApiBearerAuth(SWAGGER_BEARER_NAME)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiParam({

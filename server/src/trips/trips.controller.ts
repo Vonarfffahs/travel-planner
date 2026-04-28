@@ -9,6 +9,7 @@ import {
   Put,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import {
@@ -17,10 +18,18 @@ import {
   ReadAllTripsQueryDTO,
   ReadTripDTO,
 } from './dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { IdParamDTO } from 'src/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { AccessGuard, IdParamDTO, SWAGGER_BEARER_NAME } from 'src/common';
 
 @Controller('trips')
+@UseGuards(AccessGuard)
+@ApiBearerAuth(SWAGGER_BEARER_NAME)
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
