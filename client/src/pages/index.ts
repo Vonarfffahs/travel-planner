@@ -1,3 +1,4 @@
+export * from './AuthPage';
 export * from './HomePage';
 export * from './NotFoundPage';
 export * from './SavedTripsPage';

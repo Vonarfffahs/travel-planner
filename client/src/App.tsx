@@ -4,6 +4,7 @@ import {
   type RouteObject,
 } from 'react-router';
 import {
+  AuthPage,
   HomePage,
   NotFoundPage,
   SavedTripsPage,
@@ -13,6 +14,7 @@ import {
 } from './pages';
 
 import './App.css';
+import { ProtectedRoute } from './components/layout/ProtectedRoute/ProtectedRoute';
 
 const routes: RouteObject[] = [
   {
@@ -20,31 +22,42 @@ const routes: RouteObject[] = [
     element: <HomePage />,
   },
   {
+    path: '/auth',
+    element: <AuthPage />,
+  },
+  {
     path: 'trip/new',
     element: <TripPlannerMapPage />,
   },
+
   {
-    path: 'trip/edit/:id',
-    element: <TripPlannerMapPage />,
-  },
-  {
-    path: 'trip/view/:id',
-    element: <TripPlannerMapPage />,
-  },
-  {
-    path: 'user-profile',
-    element: <UserProfilePage />,
+    element: <ProtectedRoute />,
     children: [
       {
-        path: 'saved-trips',
-        element: <SavedTripsPage />,
+        path: 'trip/edit/:id',
+        element: <TripPlannerMapPage />,
       },
       {
-        path: 'settings',
-        element: <SettingsPage />,
+        path: 'trip/view/:id',
+        element: <TripPlannerMapPage />,
+      },
+      {
+        path: 'user-profile',
+        element: <UserProfilePage />,
+        children: [
+          {
+            path: 'saved-trips',
+            element: <SavedTripsPage />,
+          },
+          {
+            path: 'settings',
+            element: <SettingsPage />,
+          },
+        ],
       },
     ],
   },
+
   {
     path: '*',
     element: <NotFoundPage />,

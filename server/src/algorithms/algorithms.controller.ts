@@ -41,9 +41,6 @@ export class AlgorithmsController {
   constructor(private readonly algorithmsService: AlgorithmsService) {}
 
   @Get()
-  @UseGuards(AccessGuard)
-  @ApiBearerAuth(SWAGGER_BEARER_NAME)
-  @Roles(UserRole.Admin)
   @ApiOperation({ summary: 'Get all algorithms with pagination and filtering' })
   @ApiResponse({
     status: 200,
@@ -58,9 +55,6 @@ export class AlgorithmsController {
   }
 
   @Get(':id')
-  @UseGuards(AccessGuard)
-  @ApiBearerAuth(SWAGGER_BEARER_NAME)
-  @Roles(UserRole.Admin)
   @ApiOperation({ summary: 'Get a specific algorithm by ID' })
   @ApiParam({
     name: 'id',

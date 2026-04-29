@@ -1,0 +1,129 @@
+.settingsContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  color: #1a2f16;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.settingsSection {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.2s ease;
+}
+
+.settingsSection:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.settingsSection h2 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 500;
+}
+
+.errorText {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  background-color: #f8d7da;
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.successText {
+  color: #155724;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  background-color: #d4edda;
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.actionRow h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.actionRow p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.dangerZone {
+  border-color: #ffcdd2;
+  background-color: #fffafa;
+}
+
+.dangerTitle {
+  color: #d32f2f !important;
+  border-bottom-color: #ffcdd2 !important;
+}
+
+.dangerButton {
+  background-color: #dc3545 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.dangerButton:hover {
+  background-color: #c82333 !important;
+}
+
+@media (max-width: 600px) {
+  .settingsSection {
+    padding: 1.25rem 1rem;
+  }
+
+  .actionRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actionRow button {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
